@@ -177,7 +177,7 @@ function collisions()
 end
 
 function strepCheck()
-    if #debugDraw.joints < 2 then
+    if #debugDraw.joints < 2 or #debugDraw.bodies < 6 then
         return false
     else
         collisionCounter = collisions()
