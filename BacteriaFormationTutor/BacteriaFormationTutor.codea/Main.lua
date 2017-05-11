@@ -9,6 +9,8 @@ function setup()
     touchMap = {}
     label = ""
     tutorial = false
+    choices = {"diplococci","diplobacilli","streptococci","streptobacilli","staphylococci","staphylobacilli","tetrad","sarcina"}
+    quiz = {false}
 end
 
 -- This function gets called once every frame
@@ -27,12 +29,15 @@ function draw()
         fontSize(100*xw)
         text("✖️",WIDTH/2,HEIGHT/8)
         
-        if CurrentTouch.state == ENDED then
-            detection()
-            tutorial = false
-        end
+        
         
         text(label, WIDTH/2,HEIGHT/4)
+        
+        if CurrentTouch.state == ENDED then
+        detection()
+        tutorial = false
+        end
+        
         fontSize(40*xw)
         text("tap and hold here for more information",WIDTH/2,HEIGHT*7/8)
         -- print(#debugDraw.joints)
