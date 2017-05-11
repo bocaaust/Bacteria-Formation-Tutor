@@ -6,6 +6,7 @@ function setup()
     debugDraw = PhysicsDebugDraw()
     ellipseMode(CENTER)
     xw = WIDTH/1024
+    pronounciation = {}
     if xw >= 1 then
         xw = 0.8
     end
@@ -17,7 +18,7 @@ function setup()
     label = ""
     tutorial = false
     choices = {"diplococci","diplobacilli","streptococci","streptobacilli","staphylococci","staphylobacilli","tetrad","sarcina"}
---1: Is it in quiz screen, 2: is quizzing
+    --1: Is it in quiz screen, 2: is quizzing
     quiz = {false,false}
 end
 
@@ -55,7 +56,7 @@ function draw()
             for i=3,6 do
                 temp = math.random(1,#choices)
                 while choiceCheck(choices[temp]) do
-                     temp = math.random(1,#choices)
+                    temp = math.random(1,#choices)
                 end
                 quiz[i] = choices[temp]
             end
@@ -83,9 +84,9 @@ function draw()
         fontSize(100*xw)
         text("✖️",WIDTH*2/5,HEIGHT/8)
         if quiz[2] then
-        fill(0,255,0,255)
+            fill(0,255,0,255)
         else
-        fill(255,0,0,255)
+            fill(255,0,0,255)
         end
         text("?",WIDTH*4/5,HEIGHT/8)
         fill(0)
@@ -93,8 +94,8 @@ function draw()
         text(label, WIDTH/2,HEIGHT/3.6)
         
         if CurrentTouch.state == ENDED then
-        detection()
-        tutorial = false
+            detection()
+            tutorial = false
         end
         
         fontSize(40*xw)
@@ -112,68 +113,71 @@ end
 
 function detection()
     --for t, joint in ipairs(debugDraw.joints) do
-    
+    temp = label
     if #debugDraw.joints == 1 then
         if label ~= "diplo"..debugDraw.joints[#debugDraw.joints].bodyA.info then
             label = "diplo"..debugDraw.joints[#debugDraw.joints].bodyA.info
             if quiz[2] then
                 quiz[1] = true
-            else
+            end
             if debugDraw.joints[#debugDraw.joints].bodyA.info == "cocci" then
-                speech.say("dip low cox eye")
+                pronounciation[label] = "dip low cox eye"
             else
-                speech.say("dip low bass sill eye")
+                pronounciation[label] = ("dip low bass sill eye")
             end
-            end
+            
         end
     elseif strepCheck() then
         if label ~="strepto"..debugDraw.joints[#debugDraw.joints].bodyA.info then
             label ="strepto"..debugDraw.joints[#debugDraw.joints].bodyA.info
-if quiz[2] then
-quiz[1] = true
-else
+            if quiz[2] then
+                quiz[1] = true
+            end
             if debugDraw.joints[#debugDraw.joints].bodyA.info == "cocci" then
-                speech.say("strehp toe cox eye")
+                pronounciation[label] = ("strehp toe cox eye")
             else
-                speech.say("strep toe bass sill eye")
+                pronounciation[label] = ("strep toe bass sill eye")
             end
-            end
+            
         end
     elseif staphCheck() then
         if label ~="staphylo"..debugDraw.joints[#debugDraw.joints].bodyA.info then
             label ="staphylo"..debugDraw.joints[#debugDraw.joints].bodyA.info
-if quiz[2] then
-quiz[1] = true
-else
-            if debugDraw.joints[#debugDraw.joints].bodyA.info == "cocci" then
-                speech.say("staff ill low cox eye")
-            else
-                speech.say("staff ill low bass sill eye")
+            if quiz[2] then
+                quiz[1] = true
             end
-end
+            if debugDraw.joints[#debugDraw.joints].bodyA.info == "cocci" then
+                pronounciation[label] = ("staff ill low cox eye")
+            else
+                pronounciation[label] = ("staff ill low bass sill eye")
+            end
+            
         end
     elseif tetCheck() then
         if label ~= "tetrad" then
-if quiz[2] then
-quiz[1] = true
-else
-            speech.say("teh trahd")
-end
+            if quiz[2] then
+                quiz[1] = true
+            end
+            pronounciation[label] = ("teh trahd")
+            
             label = "tetrad"
         end
     elseif sarCheck() then
         if label ~= "sarcina" then
             label = "sarcina"
-if quiz[2] then
-quiz[1] = true
-else
-            speech.say("sahr sih knee")
-end
+            if quiz[2] then
+                quiz[1] = true
+            end
+            pronounciation[label] = ("sahr sih knee")
+            
         end
     else
         label = ""
     end
-    
+    if temp ~= label and label ~= "" and quiz[2] == false then
+        --  print(pronounciation[label])
+        speech.say(pronounciation[label])
+    end
     --  end
 end
 
@@ -291,10 +295,11 @@ function touched(touch)
     if quiz[1] then
         if touch.state == BEGAN then
             for i=3,6 do
-               if touch.y > HEIGHT*7.3/8-(i-2)*HEIGHT/5-HEIGHT/12 and touch.y < HEIGHT*7.3/8-(i-2)*HEIGHT/5+HEIGHT/12 then
+                if touch.y > HEIGHT*7.3/8-(i-2)*HEIGHT/5-HEIGHT/12 and touch.y < HEIGHT*7.3/8-(i-2)*HEIGHT/5+HEIGHT/12 then
                     if quiz[i] == label then
                         quiz[1] = false
                         speech.say("correct!")
+                        speech.say(pronounciation[label])
                     else
                         speech.say("try again")
                     end
@@ -302,36 +307,36 @@ function touched(touch)
             end
         end
     else
-    flag = false
-    if touch.state == BEGAN then
-        if touch.y > HEIGHT/8-100*xw and touch.y < HEIGHT/8+100*xw then
-            if touch.x > WIDTH/5-100*xw and touch.x < WIDTH/5+100*xw  then
-                createCircle(WIDTH/4,HEIGHT/8,100*xw,"cocci")
-                touchMap[touch.id] = cBody
-            elseif touch.x > WIDTH*2/5-100*xw and touch.x < WIDTH/5*2+100*xw then
-                debugDraw:clear()
-                touchMap = {}
-            elseif touch.x > WIDTH/5*3-100*xw and touch.x < WIDTH/5*3+100*xw then
-                createBox(WIDTH/4,HEIGHT/8,100*xw,200*xw,"bacilli")
-                touchMap[touch.id] = cBody
-            elseif touch.x > WIDTH/5*4-100*xw and touch.x < WIDTH/5*4+100*xw then
-                quiz[2] = (quiz[2] == false)
+        flag = false
+        if touch.state == BEGAN then
+            if touch.y > HEIGHT/8-100*xw and touch.y < HEIGHT/8+100*xw then
+                if touch.x > WIDTH/5-100*xw and touch.x < WIDTH/5+100*xw  then
+                    createCircle(WIDTH/4,HEIGHT/8,100*xw,"cocci")
+                    touchMap[touch.id] = cBody
+                elseif touch.x > WIDTH*2/5-100*xw and touch.x < WIDTH/5*2+100*xw then
+                    debugDraw:clear()
+                    touchMap = {}
+                elseif touch.x > WIDTH/5*3-100*xw and touch.x < WIDTH/5*3+100*xw then
+                    createBox(WIDTH/4,HEIGHT/8,100*xw,200*xw,"bacilli")
+                    touchMap[touch.id] = cBody
+                elseif touch.x > WIDTH/5*4-100*xw and touch.x < WIDTH/5*4+100*xw then
+                    quiz[2] = (quiz[2] == false)
+                end
+            elseif touch.y > HEIGHT/8*7-40*xw then
+                tutorial = true
             end
-        elseif touch.y > HEIGHT/8*7-40*xw then
-            tutorial = true
+            detectTouch(touch)
+        elseif touch.state == ENDED and tutorial then
+            tutorial = false
         end
-        detectTouch(touch)
-    elseif touch.state == ENDED and tutorial then
-        tutorial = false
-    end
-    
-    
-    if touch.state == ENDED then
-        touchMap[touch.id] = nil
-    elseif touchMap[touch.id] ~= nil then
-        debugDraw.bodies[touchMap[touch.id]].x = touch.x
-        debugDraw.bodies[touchMap[touch.id]].y = touch.y
-    end
+        
+        
+        if touch.state == ENDED then
+            touchMap[touch.id] = nil
+        elseif touchMap[touch.id] ~= nil then
+            debugDraw.bodies[touchMap[touch.id]].x = touch.x
+            debugDraw.bodies[touchMap[touch.id]].y = touch.y
+        end
     end
 end
 
