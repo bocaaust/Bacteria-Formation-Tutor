@@ -155,12 +155,13 @@ function detection()
         end
     elseif tetCheck() then
         if label ~= "tetrad" then
+            label = "tetrad"
             if quiz[2] then
                 quiz[1] = true
             end
             pronounciation[label] = ("teh trahd")
             
-            label = "tetrad"
+
         end
     elseif sarCheck() then
         if label ~= "sarcina" then
@@ -297,9 +298,9 @@ function touched(touch)
             for i=3,6 do
                 if touch.y > HEIGHT*7.3/8-(i-2)*HEIGHT/5-HEIGHT/12 and touch.y < HEIGHT*7.3/8-(i-2)*HEIGHT/5+HEIGHT/12 then
                     if quiz[i] == label then
-                        quiz[1] = false
                         speech.say("correct!")
                         speech.say(pronounciation[label])
+                        quiz = {false,true}
                     else
                         speech.say("try again")
                     end
