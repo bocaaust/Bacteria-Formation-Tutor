@@ -113,7 +113,7 @@ end
 
 function detection()
     --for t, joint in ipairs(debugDraw.joints) do
-    temp = label
+    temp2 = label
     if #debugDraw.joints == 1 then
         if label ~= "diplo"..debugDraw.joints[#debugDraw.joints].bodyA.info then
             label = "diplo"..debugDraw.joints[#debugDraw.joints].bodyA.info
@@ -175,7 +175,7 @@ function detection()
     else
         label = ""
     end
-    if temp ~= label and label ~= "" and quiz[2] == false then
+    if temp2 ~= label and label ~= "" and quiz[2] == false and speech.speaking == false then
         --  print(pronounciation[label])
         speech.say(pronounciation[label])
     end
@@ -212,6 +212,24 @@ function tetCheck()
 end
 
 function staphCheck()
+   b = 3
+    j = 3
+    output = false
+    while b <= 10 do
+        if b==#debugDraw.bodies and j==#debugDraw.joints then
+            output = true
+            break
+        end
+        b = b + 1
+        j = j + 2
+        if b > 7 then
+            j = j + 1
+        end
+    end
+    return output
+end
+
+function staphCheckOld()
     if #debugDraw.joints ~= 18 then
         return false
         
