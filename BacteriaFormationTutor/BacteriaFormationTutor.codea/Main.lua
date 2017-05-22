@@ -20,6 +20,7 @@ function setup()
     choices = {"diplococci","diplobacilli","streptococci","streptobacilli","staphylococci","staphylobacilli","tetrad","sarcina"}
     --1: Is it in quiz screen, 2: is quizzing
     quiz = {false,false}
+    displayQuiz = 0
 end
 
 function orientationChanged( newOrientation )
@@ -51,7 +52,7 @@ function draw()
     fill(0)
     if tutorial then
         sprite("Project:tutorial",WIDTH/2,HEIGHT/2,WIDTH*3/4)
-    elseif quiz[1] then
+    elseif quiz[1] and displayQuiz > 320 then
         if quiz[3] == nil then
             for i=3,6 do
                 temp = math.random(1,#choices)
@@ -75,6 +76,11 @@ function draw()
             text(quiz[i],WIDTH/2,HEIGHT*7.3/8-(i-2)*HEIGHT/5)
         end
     else
+        if quiz[1] then
+            displayQuiz = displayQuiz + 1
+        else
+        displayQuiz = 0
+        end
         debugDraw:draw()
         spriteMode(CENTER)
         sprite("Project:coc",WIDTH/5,HEIGHT/8,100*xw)
@@ -82,13 +88,15 @@ function draw()
         sprite("Project:bac",WIDTH*3/5,HEIGHT/8,100*xw,200*xw)
         --ellipse(WIDTH*3/4,HEIGHT/8,100*xw,200*xw)
         fontSize(100*xw)
-        text("✖️",WIDTH*2/5,HEIGHT/8)
+        text("RESET",WIDTH*2/5,HEIGHT/8)
         if quiz[2] then
             fill(0,255,0,255)
+            text("Quiz Mode On",WIDTH*4/5,HEIGHT/8)
         else
             fill(255,0,0,255)
+            text("Quiz Mode Off",WIDTH*4/5,HEIGHT/8)
         end
-        text("?",WIDTH*4/5,HEIGHT/8)
+        --text("?",WIDTH*4/5,HEIGHT/8)
         fill(0)
         
         text(label, WIDTH/2,HEIGHT/3.6)
@@ -140,7 +148,7 @@ function detection()
             end
             
         end
-    elseif staphCheck() then
+    elseif staphCheck() or staphCheckOld() then
         if label ~="staphylo"..debugDraw.joints[#debugDraw.joints].bodyA.info then
             label ="staphylo"..debugDraw.joints[#debugDraw.joints].bodyA.info
             if quiz[2] then
@@ -183,6 +191,7 @@ function detection()
 end
 
 function sarCheck()
+    return false
     if  #debugDraw.bodies == 8 then
         output = true
         for i = 1,#debugDraw.joints do
@@ -193,9 +202,9 @@ function sarCheck()
         collisionCounter = collisions()
         --  collisionCounter = mapCount(collisionCounter)
         --if  then
-        return output and zeroCount(collisionCounter) == 0
+       -- return output and zeroCount(collisionCounter) == 0
     else
-        return false
+       -- return false
     end
 end
 
