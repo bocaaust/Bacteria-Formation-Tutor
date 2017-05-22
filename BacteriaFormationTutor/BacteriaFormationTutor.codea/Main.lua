@@ -101,6 +101,7 @@ function draw()
         end
         --text("?",WIDTH*4/5,HEIGHT/8)
         fill(0)
+        fontSize(120*xw)
         if quiz[1] == false then
         text(label, WIDTH/2,HEIGHT/3.6)
         elseif displayQuiz > 225 then
