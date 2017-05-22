@@ -52,7 +52,7 @@ function draw()
     fill(0)
     if tutorial then
         sprite("Project:tutorial",WIDTH/2,HEIGHT/2,WIDTH*3/4)
-    elseif quiz[1] and displayQuiz > 320 then
+    elseif quiz[1] and displayQuiz > 220 then
         if quiz[3] == nil then
             for i=3,6 do
                 temp = math.random(1,#choices)
@@ -87,20 +87,25 @@ function draw()
         -- ellipse(WIDTH/4,HEIGHT/8,100*xw)
         sprite("Project:bac",WIDTH*3/5,HEIGHT/8,100*xw,200*xw)
         --ellipse(WIDTH*3/4,HEIGHT/8,100*xw,200*xw)
-        fontSize(100*xw)
+        fontSize(40*xw)
+        fill(255)
+        sprite("Project:button",WIDTH*4/5,HEIGHT/8,280*xw,120*xw)
+         sprite("Project:button",WIDTH*2/5,HEIGHT/8,280*xw,120*xw)
         text("RESET",WIDTH*2/5,HEIGHT/8)
         if quiz[2] then
-            fill(0,255,0,255)
+            --fill(0,255,0,255)
             text("Quiz Mode On",WIDTH*4/5,HEIGHT/8)
         else
-            fill(255,0,0,255)
+            --fill(255,0,0,255)
             text("Quiz Mode Off",WIDTH*4/5,HEIGHT/8)
         end
         --text("?",WIDTH*4/5,HEIGHT/8)
         fill(0)
-        
+        if quiz[1] == false then
         text(label, WIDTH/2,HEIGHT/3.6)
-        
+        elseif displayQuiz > 225 then
+
+        end
         if CurrentTouch.state == ENDED then
             detection()
             tutorial = false
@@ -171,15 +176,15 @@ function detection()
             
 
         end
-    elseif sarCheck() then
-        if label ~= "sarcina" then
-            label = "sarcina"
-            if quiz[2] then
-                quiz[1] = true
-            end
-            pronounciation[label] = ("sahr sih knee")
+  --  elseif sarCheck() then
+    --    if label ~= "sarcina" then
+       --     label = "sarcina"
+          --  if quiz[2] then
+            --    quiz[1] = true
+         --   end
+           -- pronounciation[label] = ("sahr sih knee")
             
-        end
+       -- end
     else
         label = ""
     end
@@ -191,7 +196,6 @@ function detection()
 end
 
 function sarCheck()
-    return false
     if  #debugDraw.bodies == 8 then
         output = true
         for i = 1,#debugDraw.joints do
@@ -320,7 +324,7 @@ end
 
 
 function touched(touch)
-    if quiz[1] then
+    if quiz[1] and displayQuiz > 220 then
         if touch.state == BEGAN then
             for i=3,6 do
                 if touch.y > HEIGHT*7.3/8-(i-2)*HEIGHT/5-HEIGHT/12 and touch.y < HEIGHT*7.3/8-(i-2)*HEIGHT/5+HEIGHT/12 then
@@ -341,13 +345,15 @@ function touched(touch)
                 if touch.x > WIDTH/5-100*xw and touch.x < WIDTH/5+100*xw  then
                     createCircle(WIDTH/4,HEIGHT/8,100*xw,"cocci")
                     touchMap[touch.id] = cBody
+                    quiz[1] = false
                 elseif touch.x > WIDTH*2/5-100*xw and touch.x < WIDTH/5*2+100*xw then
                     debugDraw:clear()
                     touchMap = {}
-                elseif touch.x > WIDTH/5*3-100*xw and touch.x < WIDTH/5*3+100*xw then
+                elseif touch.x > WIDTH/5*3-100*xw and touch.x < WIDTH/5*3+70*xw then
                     createBox(WIDTH/4,HEIGHT/8,100*xw,200*xw,"bacilli")
                     touchMap[touch.id] = cBody
-                elseif touch.x > WIDTH/5*4-100*xw and touch.x < WIDTH/5*4+100*xw then
+                    quiz[1] = false
+                elseif touch.x > WIDTH/5*4-140*xw and touch.x < WIDTH/5*4+140*xw then
                     quiz[2] = (quiz[2] == false)
                 end
             elseif touch.y > HEIGHT/8*7-40*xw then
@@ -378,6 +384,7 @@ function detectTouch(touch)
 end
 
 function createCircle(x,y,r,info)
+    label = ""
     local circle = physics.body(CIRCLE, r/2)
     -- enable smooth motion
     circle.interpolate = true
@@ -395,6 +402,7 @@ function createCircle(x,y,r,info)
 end
 
 function createBox(x,y,w,h,info)
+    label = ""
     -- polygons are defined by a series of points in counter-clockwise order
     local box = physics.body(POLYGON, vec2(-w/2,h/2), vec2(-w/2,-h/2), vec2(w/2,-h/2), vec2(w/2,h/2))
     box.interpolate = true
