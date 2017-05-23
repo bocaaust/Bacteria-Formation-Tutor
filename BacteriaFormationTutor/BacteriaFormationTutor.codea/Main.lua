@@ -90,7 +90,7 @@ function draw()
         fontSize(40*xw)
         fill(255)
         sprite("Project:button",WIDTH*4/5,HEIGHT/8,280*xw,120*xw)
-         sprite("Project:button",WIDTH*2/5,HEIGHT/8,280*xw,120*xw)
+         sprite("Project:button",WIDTH*2/5,HEIGHT/8,200*xw,120*xw)
         text("RESET",WIDTH*2/5,HEIGHT/8)
         if quiz[2] then
             --fill(0,255,0,255)
