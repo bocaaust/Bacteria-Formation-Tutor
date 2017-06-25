@@ -388,7 +388,7 @@ function touched(touch)
     --end
     elseif phase == 1 or phase == 2 then
         if CurrentOrientation == PORTRAIT then
-            constant == WIDTH
+            constant = WIDTH
         else
             constant = HEIGHT
         end
