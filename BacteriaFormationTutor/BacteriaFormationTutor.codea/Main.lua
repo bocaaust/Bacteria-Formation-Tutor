@@ -385,15 +385,29 @@ function touched(touch)
             debugDraw.bodies[touchMap[touch.id]].y = touch.y
         end
     end
+    --end
+    elseif phase == 1 or phase == 2 then
+        if CurrentOrientation == PORTRAIT then
+            constant == WIDTH
+        else
+            constant = HEIGHT
+        end
+        if touch.x > WIDTH/8 and touch.x < WIDTH*7/8 then
+        if touch.y > HEIGHT/4*2.25+constant*3/4/269*(0-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(14-297/2) then
+            phase = 0
+        end
+        end
     end
 end
 
 function detectTouch(touch)
+    if phase == 0 then
     for i,body in ipairs(debugDraw.bodies) do
         if touch.x > body.x-100*xw and touch.x < body.x+100*xw and touch.y > body.y-100*xw and touch.y < body.y+100*xw then
             touchMap[touch.id] = i
             break
         end
+    end
     end
 end
 
