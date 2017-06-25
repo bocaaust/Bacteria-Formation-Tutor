@@ -6,6 +6,9 @@ function setup()
     debugDraw = PhysicsDebugDraw()
     ellipseMode(CENTER)
     xw = WIDTH/1024
+    if WIDTH > 1.5*HEIGHT then
+        xw = xw*0.6
+    end
     pronounciation = {}
     if xw >= 1 then
         xw = 0.8
@@ -21,15 +24,13 @@ function setup()
     --1: Is it in quiz screen, 2: is quizzing
     quiz = {false,false}
     displayQuiz = 0
+    phase = 0
 end
 
 function orientationChanged( newOrientation )
     xw = WIDTH/1024
-    if xw >= 1 then
-        xw = 0.8
-    end
-    if HEIGHT/WIDTH < xw then
-        xw = HEIGHT/WIDTH*0.8
+    if WIDTH > 1.5*HEIGHT then
+        xw = xw*0.6
     end
 end
 
@@ -52,7 +53,7 @@ function draw()
     fill(0)
     if tutorial then
         sprite("Project:tutorial",WIDTH/2,HEIGHT/2,WIDTH*3/4)
-    elseif quiz[1] and displayQuiz > 220 then
+    elseif quiz[1] and displayQuiz > 220 and phase == 0 then
         if quiz[3] == nil then
             for i=3,6 do
                 temp = math.random(1,#choices)
@@ -76,30 +77,32 @@ function draw()
             text(quiz[i],WIDTH/2,HEIGHT*7.3/8-(i-2)*HEIGHT/5)
         end
     else
-        if quiz[1] then
+        if quiz[1] and phase == 0 then
             displayQuiz = displayQuiz + 1
         else
         displayQuiz = 0
         end
         debugDraw:draw()
         spriteMode(CENTER)
-        sprite("Project:coc",WIDTH/5,HEIGHT/8,100*xw)
+        sprite("Project:coc",WIDTH/4,HEIGHT/8,100*xw)
         -- ellipse(WIDTH/4,HEIGHT/8,100*xw)
-        sprite("Project:bac",WIDTH*3/5,HEIGHT/8,100*xw,200*xw)
+        sprite("Project:bac",WIDTH/2,HEIGHT/8,100*xw,200*xw)
         --ellipse(WIDTH*3/4,HEIGHT/8,100*xw,200*xw)
         fontSize(40*xw)
         fill(255)
-        sprite("Project:button",WIDTH*4/5,HEIGHT/8,280*xw,120*xw)
-         sprite("Project:button",WIDTH*2/5,HEIGHT/8,200*xw,120*xw)
-        text("RESET",WIDTH*2/5,HEIGHT/8)
-        if quiz[2] then
+        --sprite("Project:button",WIDTH*4/5,HEIGHT/8,280*xw,120*xw)
+        -- sprite("Project:button",WIDTH*2/5,HEIGHT/8,200*xw,120*xw)
+       -- text("RESET",WIDTH*2/5,HEIGHT/8)
+       -- if quiz[2] then
             --fill(0,255,0,255)
-            text("Quiz Mode On",WIDTH*4/5,HEIGHT/8)
-        else
+
+            --text("Quiz Mode On",WIDTH*4/5,HEIGHT/8)
+       -- else
             --fill(255,0,0,255)
-            text("Quiz Mode Off",WIDTH*4/5,HEIGHT/8)
-        end
+            --text("Quiz Mode Off",WIDTH*4/5,HEIGHT/8)
+       -- end
         --text("?",WIDTH*4/5,HEIGHT/8)
+        sprite("Project:bars",WIDTH/4*3,HEIGHT/8,100*xw)
         fill(0)
         fontSize(120*xw)
         if quiz[1] == false then
@@ -107,13 +110,20 @@ function draw()
         elseif displayQuiz > 225 then
 
         end
+        if phase > 0 then
+            if CurrentOrientation == PORTRAIT or CurrentOrientation == PORTRAIT_UPSIDE_DOWN then
+                sprite("Project:menu"..phase,WIDTH/2,HEIGHT/4*2.25,WIDTH*3/4)
+            else
+                sprite("Project:menu"..phase,WIDTH/2,HEIGHT/4*2.25,HEIGHT*3/4)
+            end
+        end
         if CurrentTouch.state == ENDED then
             detection()
             tutorial = false
         end
         
         fontSize(40*xw)
-        text("tap and hold here for more information",WIDTH/2,HEIGHT*7/8)
+       -- text("tap and hold here for more information",WIDTH/2,HEIGHT*7/8)
         -- print(#debugDraw.joints)
         
         
@@ -325,6 +335,7 @@ end
 
 
 function touched(touch)
+    if phase == 0 then
     if quiz[1] and displayQuiz > 220 then
         if touch.state == BEGAN then
             for i=3,6 do
@@ -343,19 +354,20 @@ function touched(touch)
         flag = false
         if touch.state == BEGAN then
             if touch.y > HEIGHT/8-100*xw and touch.y < HEIGHT/8+100*xw then
-                if touch.x > WIDTH/5-100*xw and touch.x < WIDTH/5+100*xw  then
+                if touch.x > WIDTH/4-100*xw and touch.x < WIDTH/4+100*xw  then
                     createCircle(WIDTH/4,HEIGHT/8,100*xw,"cocci")
                     touchMap[touch.id] = cBody
                     quiz[1] = false
-                elseif touch.x > WIDTH*2/5-100*xw and touch.x < WIDTH/5*2+100*xw then
-                    debugDraw:clear()
-                    touchMap = {}
-                elseif touch.x > WIDTH/5*3-100*xw and touch.x < WIDTH/5*3+70*xw then
-                    createBox(WIDTH/4,HEIGHT/8,100*xw,200*xw,"bacilli")
+                --elseif touch.x > WIDTH*2/5-100*xw and touch.x < WIDTH/5*2+100*xw then
+                 --   debugDraw:clear()
+                  --  touchMap = {}
+                elseif touch.x > WIDTH/2-100*xw and touch.x < WIDTH/2+100*xw then
+                    createBox(WIDTH/2,HEIGHT/8,100*xw,200*xw,"bacilli")
                     touchMap[touch.id] = cBody
                     quiz[1] = false
-                elseif touch.x > WIDTH/5*4-140*xw and touch.x < WIDTH/5*4+140*xw then
-                    quiz[2] = (quiz[2] == false)
+                elseif touch.x > WIDTH/4*3-100*xw and touch.x < WIDTH/4*3+100*xw then
+                --    quiz[2] = (quiz[2] == false)
+                    if quiz[2] then phase = 2 else phase = 1 end
                 end
             elseif touch.y > HEIGHT/8*7-40*xw then
                 tutorial = true
@@ -372,6 +384,7 @@ function touched(touch)
             debugDraw.bodies[touchMap[touch.id]].x = touch.x
             debugDraw.bodies[touchMap[touch.id]].y = touch.y
         end
+    end
     end
 end
 
