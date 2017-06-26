@@ -25,6 +25,7 @@ function setup()
     quiz = {false,false}
     displayQuiz = 0
     phase = 0
+    pop=.9
 end
 
 function orientationChanged( newOrientation )
@@ -48,11 +49,19 @@ end
 
 -- This function gets called once every frame
 function draw()
+    if pop < 1 then
+        pop = pop + .01
+    end
     -- This sets a dark background color
     background(255, 255, 255, 255)
     fill(0)
     if tutorial then
-        sprite("Project:tutorial",WIDTH/2,HEIGHT/2,WIDTH*3/4)
+        if CurrentOrientation == PORTRAIT or CurrentOrientation == PORTRAIT_UPSIDE_DOWN then
+        sprite("Project:tutorial",WIDTH/2,HEIGHT/2,WIDTH)
+        else
+        sprite("Project:tutorial",WIDTH/2,HEIGHT/2,HEIGHT*3.5/4)
+        end
+        sprite("Project:back",WIDTH/16,HEIGHT*7/8,100*xw)
     elseif quiz[1] and displayQuiz > 220 and phase == 0 then
         if quiz[3] == nil then
             for i=3,6 do
@@ -111,11 +120,13 @@ function draw()
 
         end
         if phase > 0 then
+            tint(255,255,255,255*pop)
             if CurrentOrientation == PORTRAIT or CurrentOrientation == PORTRAIT_UPSIDE_DOWN then
-                sprite("Project:menu"..phase,WIDTH/2,HEIGHT/4*2.25,WIDTH*3/4)
+                sprite("Project:menu"..phase,WIDTH/2,HEIGHT/4*2.25,WIDTH*3/4*pop)
             else
-                sprite("Project:menu"..phase,WIDTH/2,HEIGHT/4*2.25,HEIGHT*3/4)
+                sprite("Project:menu"..phase,WIDTH/2,HEIGHT/4*2.25,HEIGHT*3/4*pop)
             end
+            tint(255)
         end
         if CurrentTouch.state == ENDED then
             detection()
@@ -335,7 +346,11 @@ end
 
 
 function touched(touch)
-    if phase == 0 then
+    if tutorial then
+        if touch.state == BEGAN and touch.y > HEIGHT*7/8-50*xw and touch.x < HEIGHT/8+50*xw then
+            tutorial = false
+        end
+    elseif phase == 0 then
     if quiz[1] and displayQuiz > 220 then
         if touch.state == BEGAN then
             for i=3,6 do
@@ -366,8 +381,9 @@ function touched(touch)
                     touchMap[touch.id] = cBody
                     quiz[1] = false
                 elseif touch.x > WIDTH/4*3-100*xw and touch.x < WIDTH/4*3+100*xw then
-                --    quiz[2] = (quiz[2] == false)
+                    pop = 0.9
                     if quiz[2] then phase = 2 else phase = 1 end
+
                 end
             elseif touch.y > HEIGHT/8*7-40*xw then
                 tutorial = true
@@ -385,18 +401,36 @@ function touched(touch)
             debugDraw.bodies[touchMap[touch.id]].y = touch.y
         end
     end
-    --end
     elseif phase == 1 or phase == 2 then
-        if CurrentOrientation == PORTRAIT then
+        if touch.state == BEGAN then
+        if CurrentOrientation == PORTRAIT or CurrentOrientation == PORTRAIT_UPSIDE_DOWN then
             constant = WIDTH
         else
             constant = HEIGHT
         end
         if touch.x > WIDTH/8 and touch.x < WIDTH*7/8 then
-        if touch.y > HEIGHT/4*2.25+constant*3/4/269*(0-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(14-297/2) then
+        if touch.y > HEIGHT/4*2.25+constant*3/4/269*(0-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(42-297/2) then
+            phase = 0
+        elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(42-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(88-297/2) then
+        tutorial = true
+        phase = 0
+        elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(88-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(132-297/2) then
+        phase = 3
+        pop=0.9
+        elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(132-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(175-297/2) then
+            quiz[2] = (quiz[2] == false)
+            phase = 0
+        elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(175-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(219-297/2) then
+            debugDraw:clear()
+            touchMap = {}
+            phase = 0
+        elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(297-297/2) or touch.y < HEIGHT/4*2.25+constant*3/4/269*(0-297/2) then
             phase = 0
         end
+        else
+            phase = 0
         end
+    end
     end
 end
 
