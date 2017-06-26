@@ -371,14 +371,14 @@ function touched(touch)
         if touch.state == BEGAN then
             if touch.y > HEIGHT/8-100*xw and touch.y < HEIGHT/8+100*xw then
                 if touch.x > WIDTH/4-100*xw and touch.x < WIDTH/4+100*xw  then
-                    createCircle(WIDTH/4,HEIGHT/8,100*xw,"cocci")
+                    createCircle(WIDTH/4,HEIGHT/8,100*xw,"cocci",false)
                     touchMap[touch.id] = cBody
                     quiz[1] = false
                 --elseif touch.x > WIDTH*2/5-100*xw and touch.x < WIDTH/5*2+100*xw then
                  --   debugDraw:clear()
                   --  touchMap = {}
                 elseif touch.x > WIDTH/2-100*xw and touch.x < WIDTH/2+100*xw then
-                    createBox(WIDTH/2,HEIGHT/8,100*xw,200*xw,"bacilli")
+                    createBox(WIDTH/2,HEIGHT/8,100*xw,200*xw,"bacilli",false)
                     touchMap[touch.id] = cBody
                     quiz[1] = false
                 elseif touch.x > WIDTH/4*3-100*xw and touch.x < WIDTH/4*3+100*xw then
@@ -433,7 +433,7 @@ function touched(touch)
         end
     end
     elseif phase == 3 then
-
+        
     end
 end
 
@@ -448,7 +448,7 @@ function detectTouch(touch)
     end
 end
 
-function createCircle(x,y,r,info)
+function createCircle(x,y,r,info,sensor)
     label = ""
     local circle = physics.body(CIRCLE, r/2)
     -- enable smooth motion
@@ -466,7 +466,7 @@ function createCircle(x,y,r,info)
     return circle
 end
 
-function createBox(x,y,w,h,info)
+function createBox(x,y,w,h,info,sensor)
     label = ""
     -- polygons are defined by a series of points in counter-clockwise order
     local box = physics.body(POLYGON, vec2(-w/2,h/2), vec2(-w/2,-h/2), vec2(w/2,-h/2), vec2(w/2,h/2))

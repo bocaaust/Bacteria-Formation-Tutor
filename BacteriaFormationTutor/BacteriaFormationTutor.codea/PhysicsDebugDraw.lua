@@ -148,13 +148,40 @@ function PhysicsDebugDraw:touched(touch)
     return false
 end
 
+function PhysicsDebugDraw:find(input)
+    for i,body in ipairs(self.bodies) do
+        if body == input then
+            return i
+        end
+    end
+end
+
+function PhysicsDebugDraw:clearSensors()
+    for i,body in ipairs(self.bodies) do
+        if body.sensor then
+            body:destroy()
+        end
+    end
+end
+
 function PhysicsDebugDraw:collide(contact)
     if contact.state == BEGAN then
+        if contact.bodyA.sensor or contact.bodyB.sensor then
+            if contact.bodyA.sensor then
+                contact.bodyB:destroy()
+               -- table.remove(self.bodies,self:find(contact.bodyB))
+                contact.bodyA.sensor = false
+            else
+                contact.bodyA:destroy()
+                contact.bodyB.sensor = false
+            end
+        else
         self.contacts[contact.id] = contact
         sound(SOUND_POWERUP, 2656)
         if contact.bodyA.info == contact.bodyB.info then
             local joint = physics.joint(REVOLUTE,contact.bodyA,contact.bodyB,contact.position)
             self:addJoint(joint)
+        end
         end
     elseif contact.state == MOVING then
         self.contacts[contact.id] = contact
