@@ -433,7 +433,37 @@ function touched(touch)
         end
     end
     elseif phase == 3 then
-        
+        if touch.state == BEGAN then
+            if CurrentOrientation == PORTRAIT or CurrentOrientation == PORTRAIT_UPSIDE_DOWN then
+                constant = WIDTH
+            else
+                constant = HEIGHT
+            end
+
+            if touch.x > WIDTH/8 and touch.x < WIDTH*7/8 then
+                if touch.y > HEIGHT/4*2.25+constant*3/4/269*(0-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(42-297/2) then
+                    phase = 0
+                elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(42-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(88-297/2) then
+
+                    phase = 0
+                elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(88-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(132-297/2) then
+
+                    phase = 0
+                elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(132-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(175-297/2) then
+                    quiz[2] = (quiz[2] == false)
+                    phase = 0
+                elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(175-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(219-297/2) then
+
+                    phase = 0
+                elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(297-297/2) or touch.y < HEIGHT/4*2.25+constant*3/4/269*(0-297/2) then
+                    phase = 0
+                end
+            else
+                phase = 0
+            end
+
+
+        end
     end
 end
 
@@ -457,6 +487,7 @@ function createCircle(x,y,r,info,sensor)
     circle.y = y
     circle.restitution = 0
     circle.friction = 0.4
+    circle.sensor = sensor
     circle.gravityScale = 0
     circle.sleepingAllowed = false
     circle.info = info

@@ -78,14 +78,15 @@ function PhysicsDebugDraw:draw()
         
         if body.shapeType == POLYGON then
             strokeWidth(3.0)
+             spriteMode(CENTER)
             if body.sensor then
-             local points = body.points
-             for j = 1,#points do
-                 a = points[j]
-                 b = points[(j % #points)+1]
-                  line(a.x, a.y, b.x, b.y)
-              end
-            spriteMode(CENTER)
+             --local points = body.points
+            -- for j = 1,#points do
+              --   a = points[j]
+              --   b = points[(j % #points)+1]
+               --   line(a.x, a.y, b.x, b.y)
+              --end
+            sprite("Project:bac2",(body.points[1].x+body.points[3].x)/2,(body.points[1].y+body.points[2].y)/2,100*xw,200*xw)
             else
             sprite("Project:bac",(body.points[1].x+body.points[3].x)/2,(body.points[1].y+body.points[2].y)/2,100*xw,200*xw)
             end
@@ -104,7 +105,8 @@ function PhysicsDebugDraw:draw()
             if body.info == "cocci" then
                 spriteMode(CENTER)
                 if body.sensor then
-                ellipse(0,0,body.radius*2)
+                sprite("Project:coc2",0,0,body.radius*2)
+                --ellipse(0,0,body.radius*2)
                 else
                 sprite("Project:coc",0,0,body.radius*2)
                 end
