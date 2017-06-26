@@ -25,6 +25,7 @@ function setup()
     quiz = {false,false}
     displayQuiz = 0
     phase = 0
+    hint = 0
     pop=.9
 end
 
@@ -431,6 +432,8 @@ function touched(touch)
             phase = 0
         end
     end
+    elseif phase == 3 then
+
     end
 end
 
