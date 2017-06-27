@@ -26,10 +26,14 @@ function setup()
     displayQuiz = 0
     phase = 0
     hint = 0
+    sensing = ""
     pop=.9
 end
 
 function orientationChanged( newOrientation )
+    if debugDraw ~= nil then
+        debugDraw:clearSensors()
+    end
     xw = WIDTH/1024
     if WIDTH > 1.5*HEIGHT then
         xw = xw*0.6
@@ -50,6 +54,9 @@ end
 
 -- This function gets called once every frame
 function draw()
+    if #debugDraw.bodies == 0 then
+        sensing = ""
+    end
     if pop < 1 then
         pop = pop + .01
     end
@@ -150,17 +157,17 @@ end
 function detection()
     --for t, joint in ipairs(debugDraw.joints) do
     temp2 = label
-
+    if debugDraw:hasSensor() == false then
     if #debugDraw.joints == 1 then
-        if debugDraw.joints[#debugDraw.joints].bodyA.info == "moved" then
-            if debugDraw.joints[#debugDraw.joints].bodyA.shapeType == CIRCLE then
-                debugDraw.joints[#debugDraw.joints].bodyA.info = "cocci"
-                debugDraw.joints[#debugDraw.joints].bodyB.info = "cocci"
-            else
-                debugDraw.joints[#debugDraw.joints].bodyA.info = "bacilli"
-                debugDraw.joints[#debugDraw.joints].bodyB.info = "bacilli"
-            end
-        end
+       -- if debugDraw.joints[#debugDraw.joints].bodyA.info == "moved" then
+           -- if debugDraw.joints[#debugDraw.joints].bodyA.shapeType == CIRCLE then
+              --  debugDraw.joints[#debugDraw.joints].bodyA.info = "cocci"
+             --   debugDraw.joints[#debugDraw.joints].bodyB.info = "cocci"
+           -- else
+               -- debugDraw.joints[#debugDraw.joints].bodyA.info = "bacilli"
+             --   debugDraw.joints[#debugDraw.joints].bodyB.info = "bacilli"
+            --end
+       -- end
         if label ~= "diplo"..debugDraw.joints[#debugDraw.joints].bodyA.info then
             label = "diplo"..debugDraw.joints[#debugDraw.joints].bodyA.info
             if quiz[2] then
@@ -173,7 +180,7 @@ function detection()
             end
             
         end
-    elseif strepCheck() then
+    elseif strepCheck() or sensing == "streptococci" or sensing == "streptobacilli" then
         if label ~="strepto"..debugDraw.joints[#debugDraw.joints].bodyA.info then
             label ="strepto"..debugDraw.joints[#debugDraw.joints].bodyA.info
             if quiz[2] then
@@ -225,7 +232,7 @@ function detection()
         --  print(pronounciation[label])
         speech.say(pronounciation[label])
     end
-    --  end
+    end
 end
 
 function sarCheck()
@@ -397,7 +404,7 @@ function touched(touch)
 
                 end
             elseif touch.y > HEIGHT/8*7-40*xw then
-                tutorial = true
+               -- tutorial = true
             end
             detectTouch(touch)
         elseif touch.state == ENDED and tutorial then
@@ -455,27 +462,48 @@ function touched(touch)
             if touch.x > WIDTH/8 and touch.x < WIDTH*7/8 then
                 if touch.y > HEIGHT/4*2.25+constant*3/4/269*(0-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(42-297/2) then
                     phase = 0
-                    debugDraw:clearSensors()
+                    debugDraw:clear()
+            touchMap = {}
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(42-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(88-297/2) then
                     --diplobaccili
-                    debugDraw:clearSensors()
+                    debugDraw:clear()
+            touchMap = {}
                     phase = 0
+
                     createBox(WIDTH/2,HEIGHT/2,100*xw,200*xw,"bacilli",true)
                     createBox(WIDTH/2,HEIGHT/2+200*xw,100*xw,200*xw,"bacilli",true)
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(88-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(132-297/2) then
-                    debugDraw:clearSensors()
+
                     phase = 0
+                    debugDraw:clear()
+                    touchMap = {}
                     createCircle(WIDTH/2,HEIGHT/2,100*xw,"cocci",true)
                     createCircle(WIDTH/2,HEIGHT/2+100*xw,100*xw,"cocci",true)
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(132-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(175-297/2) then
-                    quiz[2] = (quiz[2] == false)
-                    debugDraw:clearSensors()
+                    debugDraw:clear()
+                    touchMap = {}
                     phase = 0
+                    createBox(WIDTH/2,HEIGHT/2,100*xw,200*xw,"bacilli",true)
+                    createBox(WIDTH/2,HEIGHT/2+200*xw,100*xw,200*xw,"bacilli",true)
+                    createBox(WIDTH/2,HEIGHT/2+400*xw,100*xw,200*xw,"bacilli",true)
+                    createBox(WIDTH/2,HEIGHT/2+600*xw,100*xw,200*xw,"bacilli",true)
+                    createBox(WIDTH/2,HEIGHT/2-200*xw,100*xw,200*xw,"bacilli",true)
+                    createBox(WIDTH/2,HEIGHT/2-400*xw,100*xw,200*xw,"bacilli",true)
+                    sensing = "streptobacilli"
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(175-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(219-297/2) then
-                    debugDraw:clearSensors()
+                    debugDraw:clear()
+                    touchMap = {}
                     phase = 0
+                    createCircle(WIDTH/2,HEIGHT/2,100*xw,"cocci",true)
+                    createCircle(WIDTH/2,HEIGHT/2+100*xw,100*xw,"cocci",true)
+                    createCircle(WIDTH/2,HEIGHT/2+200*xw,100*xw,"cocci",true)
+                    createCircle(WIDTH/2,HEIGHT/2+300*xw,100*xw,"cocci",true)
+                    createCircle(WIDTH/2,HEIGHT/2-95*xw,100*xw,"cocci",true)
+                    createCircle(WIDTH/2,HEIGHT/2-190*xw,100*xw,"cocci",true)
+                    sensing = "streptococci"
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(297-297/2) or touch.y < HEIGHT/4*2.25+constant*3/4/269*(0-297/2) then
-                    debugDraw:clearSensors()
+                    debugDraw:clear()
+                    touchMap = {}
                     phase = 0
                 end
             else
@@ -501,6 +529,9 @@ function detectTouch(touch)
 end
 
 function createCircle(x,y,r,info,sensor)
+    if debugDraw:hasSensor() == false and sensing ~= "" then
+        sensing = ""
+    end
     debugDraw.singleCollision = true
     label = ""
     local circle = physics.body(CIRCLE, r/2)

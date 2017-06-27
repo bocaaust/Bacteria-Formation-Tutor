@@ -125,7 +125,7 @@ function PhysicsDebugDraw:draw()
     
     for k,v in pairs(self.contacts) do
         for m,n in ipairs(v.points) do
-            ellipse(n.x, n.y, 10, 10)
+          --  ellipse(n.x, n.y, 10, 10)
         end
     end
     
@@ -163,8 +163,18 @@ function PhysicsDebugDraw:clearSensors()
     for i,body in ipairs(self.bodies) do
         if body.sensor then
             body:destroy()
+            table.remove(self.bodies,self:find(body))
         end
     end
+end
+
+function PhysicsDebugDraw:hasSensor()
+    for i,body in ipairs(self.bodies) do
+        if body.sensor then
+            return true
+        end
+    end
+    return false
 end
 
 function PhysicsDebugDraw:collide(contact)
@@ -172,20 +182,22 @@ function PhysicsDebugDraw:collide(contact)
         if (contact.bodyA.sensor or contact.bodyB.sensor) and ((contact.bodyA.sensor and contact.bodyB.sensor) == false) and contact.bodyA.info == contact.bodyB.info then
             if contact.bodyA.sensor then
                 self.singleCollison = false
+                contact.bodyB.info = "moved"
                 tempx = contact.bodyA.x
                 tempy = contact.bodyA.y
                 contact.bodyA.info = "dead"
-                contact.bodyB.info = "moved"
+
                 contact.bodyA:destroy()
                 table.remove(self.bodies,self:find(contact.bodyA))
                 contact.bodyB.x = tempx
                 contact.bodyB.y = tempy
             else
                 self.singleCollison = false
+                contact.bodyA.info = "moved"
                 tempx = contact.bodyB.x
                 tempy = contact.bodyB.y
                 contact.bodyB.info = "dead"
-                contact.bodyA.info = "moved"
+
                 contact.bodyB:destroy()
                 table.remove(self.bodies,self:find(contact.bodyB))
                 contact.bodyA.x = tempx
@@ -197,21 +209,41 @@ function PhysicsDebugDraw:collide(contact)
         if contact.bodyA.info == contact.bodyB.info and contact.bodyB.sensor == false and contact.bodyA.sensor == false then
             local joint = physics.joint(REVOLUTE,contact.bodyA,contact.bodyB,contact.position)
             self:addJoint(joint)
-            if self.joints[#self.joints].bodyA.info == "moved" then
-                if self.joints[#self.joints].bodyA.shapeType == CIRCLE then
-                    self.joints[#self.joints].bodyA.info = "cocci"
-                    self.joints[#self.joints].bodyB.info = "cocci"
-                else
-                    print(self.joints[#self.joints].bodyA.shapeType)
-                    self.joints[#self.joints].bodyA.info = "bacilli"
-                    self.joints[#self.joints].bodyB.info = "bacilli"
-                end
+            if self:hasSensor() == false and self.joints[#self.joints].bodyA.info == "moved" then
+                self:unMove()
             end
+            self.contacts[contact.id] = nil
+           -- if self.joints[#self.joints].bodyA.info == "moved" then
+              --  if self.joints[#self.joints].bodyA.shapeType == CIRCLE then
+               --     self.joints[#self.joints].bodyA.info = "cocci"
+               --     self.joints[#self.joints].bodyB.info = "cocci"
+               -- else
+                 --   print(self.joints[#self.joints].bodyA.shapeType)
+                  --  self.joints[#self.joints].bodyA.info = "bacilli"
+                  --  self.joints[#self.joints].bodyB.info = "bacilli"
+                --end
+            --end
         end
         end
     elseif contact.state == MOVING then
-        self.contacts[contact.id] = contact
+        if self.contacts[contact.id] ~= nil and contact.bodyA.info == contact.bodyB.info then
+            local joint = physics.joint(REVOLUTE,contact.bodyA,contact.bodyB,contact.position)
+            self:addJoint(joint)
+        end
+        self.contacts[contact.id] = nil
     elseif contact.state == ENDED then
         self.contacts[contact.id] = nil
+    end
+end
+
+function PhysicsDebugDraw:unMove()
+    for i,body in ipairs(self.bodies) do
+        if body.info == "moved" then
+            if body.shapeType == CIRCLE then
+                body.info = "cocci"
+            else
+                body.info = "bacilli"
+            end
+        end
     end
 end
