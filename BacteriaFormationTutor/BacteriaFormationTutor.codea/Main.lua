@@ -150,7 +150,17 @@ end
 function detection()
     --for t, joint in ipairs(debugDraw.joints) do
     temp2 = label
+
     if #debugDraw.joints == 1 then
+        if debugDraw.joints[#debugDraw.joints].bodyA.info == "moved" then
+            if debugDraw.joints[#debugDraw.joints].bodyA.shapeType == CIRCLE then
+                debugDraw.joints[#debugDraw.joints].bodyA.info = "cocci"
+                debugDraw.joints[#debugDraw.joints].bodyB.info = "cocci"
+            else
+                debugDraw.joints[#debugDraw.joints].bodyA.info = "bacilli"
+                debugDraw.joints[#debugDraw.joints].bodyB.info = "bacilli"
+            end
+        end
         if label ~= "diplo"..debugDraw.joints[#debugDraw.joints].bodyA.info then
             label = "diplo"..debugDraw.joints[#debugDraw.joints].bodyA.info
             if quiz[2] then
@@ -398,8 +408,10 @@ function touched(touch)
         if touch.state == ENDED then
             touchMap[touch.id] = nil
         elseif touchMap[touch.id] ~= nil then
-            debugDraw.bodies[touchMap[touch.id]].x = touch.x
-            debugDraw.bodies[touchMap[touch.id]].y = touch.y
+            if debugDraw.bodies[touchMap[touch.id]] ~= nil then
+                debugDraw.bodies[touchMap[touch.id]].x = touch.x
+                debugDraw.bodies[touchMap[touch.id]].y = touch.y
+            end
         end
     end
     elseif phase == 1 or phase == 2 then
@@ -443,19 +455,27 @@ function touched(touch)
             if touch.x > WIDTH/8 and touch.x < WIDTH*7/8 then
                 if touch.y > HEIGHT/4*2.25+constant*3/4/269*(0-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(42-297/2) then
                     phase = 0
+                    debugDraw:clearSensors()
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(42-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(88-297/2) then
-
+                    --diplobaccili
+                    debugDraw:clearSensors()
                     phase = 0
+                    createBox(WIDTH/2,HEIGHT/2,100*xw,200*xw,"bacilli",true)
+                    createBox(WIDTH/2,HEIGHT/2+200*xw,100*xw,200*xw,"bacilli",true)
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(88-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(132-297/2) then
-
+                    debugDraw:clearSensors()
                     phase = 0
+                    createCircle(WIDTH/2,HEIGHT/2,100*xw,"cocci",true)
+                    createCircle(WIDTH/2,HEIGHT/2+100*xw,100*xw,"cocci",true)
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(132-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(175-297/2) then
                     quiz[2] = (quiz[2] == false)
+                    debugDraw:clearSensors()
                     phase = 0
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(175-297/2) and touch.y < HEIGHT/4*2.25+constant*3/4/269*(219-297/2) then
-
+                    debugDraw:clearSensors()
                     phase = 0
                 elseif touch.y > HEIGHT/4*2.25+constant*3/4/269*(297-297/2) or touch.y < HEIGHT/4*2.25+constant*3/4/269*(0-297/2) then
+                    debugDraw:clearSensors()
                     phase = 0
                 end
             else
@@ -470,15 +490,18 @@ end
 function detectTouch(touch)
     if phase == 0 then
     for i,body in ipairs(debugDraw.bodies) do
+        if body.sensor == false then
         if touch.x > body.x-100*xw and touch.x < body.x+100*xw and touch.y > body.y-100*xw and touch.y < body.y+100*xw then
             touchMap[touch.id] = i
             break
         end
     end
     end
+    end
 end
 
 function createCircle(x,y,r,info,sensor)
+    debugDraw.singleCollision = true
     label = ""
     local circle = physics.body(CIRCLE, r/2)
     -- enable smooth motion
@@ -498,6 +521,7 @@ function createCircle(x,y,r,info,sensor)
 end
 
 function createBox(x,y,w,h,info,sensor)
+    debugDraw.singleCollision = true
     label = ""
     -- polygons are defined by a series of points in counter-clockwise order
     local box = physics.body(POLYGON, vec2(-w/2,h/2), vec2(-w/2,-h/2), vec2(w/2,-h/2), vec2(w/2,h/2))
@@ -509,6 +533,7 @@ function createBox(x,y,w,h,info,sensor)
     box.gravityScale = 0
     box.sleepingAllowed = false
     box.info = info
+    box.sensor = sensor
     debugDraw:addBody(box)
     cBody = #debugDraw.bodies
     return box

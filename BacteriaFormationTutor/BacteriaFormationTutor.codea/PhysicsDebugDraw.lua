@@ -5,6 +5,7 @@ function PhysicsDebugDraw:init()
     self.joints = {}
     self.touchMap = {}
     self.contacts = {}
+    self.singleCollision = true
 end
 
 function PhysicsDebugDraw:addBody(body)
@@ -102,7 +103,7 @@ function PhysicsDebugDraw:draw()
         elseif body.shapeType == CIRCLE then
             strokeWidth(3.0)
             line(0,0,body.radius-3,0)
-            if body.info == "cocci" then
+            if body.info == "cocci" or body.info == "moved" then
                 spriteMode(CENTER)
                 if body.sensor then
                 sprite("Project:coc2",0,0,body.radius*2)
@@ -135,7 +136,7 @@ function PhysicsDebugDraw:touched(touch)
     local touchPoint = vec2(touch.x, touch.y)
     if touch.state == BEGAN then
         for i,body in ipairs(self.bodies) do
-            if body.type == DYNAMIC and body:testPoint(touchPoint) then
+            if body.type == DYNAMIC and body:testPoint(touchPoint) and body.sensor == false then
                 self.touchMap[touch.id] = {tp = touchPoint, body = body, anchor = body:getLocalPoint(touchPoint)}
                 return true
             end
@@ -167,22 +168,45 @@ function PhysicsDebugDraw:clearSensors()
 end
 
 function PhysicsDebugDraw:collide(contact)
-    if contact.state == BEGAN then
-        if contact.bodyA.sensor or contact.bodyB.sensor then
+    if contact.state == BEGAN and contact.bodyA.info ~= "dead" and contact.bodyB.info ~= "dead" and self.singleCollision then
+        if (contact.bodyA.sensor or contact.bodyB.sensor) and ((contact.bodyA.sensor and contact.bodyB.sensor) == false) and contact.bodyA.info == contact.bodyB.info then
             if contact.bodyA.sensor then
-                contact.bodyB:destroy()
-               -- table.remove(self.bodies,self:find(contact.bodyB))
-                contact.bodyA.sensor = false
-            else
+                self.singleCollison = false
+                tempx = contact.bodyA.x
+                tempy = contact.bodyA.y
+                contact.bodyA.info = "dead"
+                contact.bodyB.info = "moved"
                 contact.bodyA:destroy()
-                contact.bodyB.sensor = false
+                table.remove(self.bodies,self:find(contact.bodyA))
+                contact.bodyB.x = tempx
+                contact.bodyB.y = tempy
+            else
+                self.singleCollison = false
+                tempx = contact.bodyB.x
+                tempy = contact.bodyB.y
+                contact.bodyB.info = "dead"
+                contact.bodyA.info = "moved"
+                contact.bodyB:destroy()
+                table.remove(self.bodies,self:find(contact.bodyB))
+                contact.bodyA.x = tempx
+                contact.bodyA.y = tempy
             end
         else
         self.contacts[contact.id] = contact
         sound(SOUND_POWERUP, 2656)
-        if contact.bodyA.info == contact.bodyB.info then
+        if contact.bodyA.info == contact.bodyB.info and contact.bodyB.sensor == false and contact.bodyA.sensor == false then
             local joint = physics.joint(REVOLUTE,contact.bodyA,contact.bodyB,contact.position)
             self:addJoint(joint)
+            if self.joints[#self.joints].bodyA.info == "moved" then
+                if self.joints[#self.joints].bodyA.shapeType == CIRCLE then
+                    self.joints[#self.joints].bodyA.info = "cocci"
+                    self.joints[#self.joints].bodyB.info = "cocci"
+                else
+                    print(self.joints[#self.joints].bodyA.shapeType)
+                    self.joints[#self.joints].bodyA.info = "bacilli"
+                    self.joints[#self.joints].bodyB.info = "bacilli"
+                end
+            end
         end
         end
     elseif contact.state == MOVING then
