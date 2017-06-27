@@ -20,7 +20,7 @@ function setup()
     touchMap = {}
     label = ""
     tutorial = false
-    choices = {"diplococci","diplobacilli","streptococci","streptobacilli","staphylococci","staphylobacilli","tetrad","sarcina"}
+    choices = {"diplococci","diplobacilli","streptococci","streptobacilli","staphylococci","staphylobacilli","tetrad"}
     --1: Is it in quiz screen, 2: is quizzing
     quiz = {false,false}
     displayQuiz = 0
