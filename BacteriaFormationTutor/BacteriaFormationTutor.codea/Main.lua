@@ -28,6 +28,8 @@ function setup()
     hint = 0
     sensing = ""
     pop=.9
+    tapTimer = vec3(0,WIDTH/2,HEIGHT/8)
+    tapString = "bac"
 end
 
 function orientationChanged( newOrientation )
@@ -70,7 +72,7 @@ function draw()
         sprite("Project:tutorial",WIDTH/2,HEIGHT/2,HEIGHT*3.5/4)
         end
         sprite("Project:back",WIDTH/16,HEIGHT*7/8,100*xw)
-    elseif quiz[1] and displayQuiz > 220 and phase == 0 then
+    elseif quiz[1] and displayQuiz > 160 and phase == 0 then
         if quiz[3] == nil then
             for i=3,6 do
                 temp = math.random(1,#choices)
@@ -94,6 +96,29 @@ function draw()
             text(quiz[i],WIDTH/2,HEIGHT*7.3/8-(i-2)*HEIGHT/5)
         end
     else
+        if #debugDraw.bodies == 0 and phase == 0 then
+            tapTimer.x = tapTimer.x + 1
+            if tapTimer.x > 180 then
+                tint(255,255,255,125)
+                if tapTimer.y >= WIDTH/2 then
+                    tapString = "bac"
+                end
+                sprite("Project:"..tapString,tapTimer.y,tapTimer.z,100*xw)
+                tint(255,255,255,255)
+                sprite("Project:finger",tapTimer.y+50*xw,tapTimer.z-50*xw,120*xw)
+                tapTimer.y = tapTimer.y + 0.5
+                tapTimer.z = tapTimer.z + 1.25
+                if tapTimer.y > WIDTH*2/3 or math.floor(tapTimer.y) == math.floor(WIDTH/2) then
+                    tapTimer.z = HEIGHT/8
+                    if tapTimer.y > WIDTH*2/3 then
+                        tapString = "coc"
+                        tapTimer.y = WIDTH/3
+                    end
+                end
+            end
+        else
+            tapTimer = vec3(0,WIDTH/2,HEIGHT/8)
+        end
         if quiz[1] and phase == 0 then
             displayQuiz = displayQuiz + 1
         else
@@ -369,7 +394,7 @@ function touched(touch)
             tutorial = false
         end
     elseif phase == 0 then
-    if quiz[1] and displayQuiz > 220 then
+    if quiz[1] and displayQuiz > 160 then
         if touch.state == BEGAN then
             for i=3,6 do
                 if touch.y > HEIGHT*7.3/8-(i-2)*HEIGHT/5-HEIGHT/12 and touch.y < HEIGHT*7.3/8-(i-2)*HEIGHT/5+HEIGHT/12 then
